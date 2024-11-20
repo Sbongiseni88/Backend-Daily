@@ -10,6 +10,7 @@ cursor=conn.cursor()
 print('Accounts Table:')
 cursor.execute('SELECT * FROM account')
 accounts=cursor.fetchall()
+print(accounts)
 if accounts:
     for account in accounts:
         print(f'ID: {account[0]}, Name: {account[1]}, Email: {account[2]}, Balance: {account[3]}')

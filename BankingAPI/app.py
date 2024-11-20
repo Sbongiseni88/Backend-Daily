@@ -13,7 +13,7 @@ db = SQLAlchemy(app)
 
 # Define the Account model
 class Account(db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # Unique ID for each account
+    id = db.Column(db.Integer, unique=True, primary_key=True)  # Unique ID for each account
     name = db.Column(db.String(100), nullable=False)  # Name of the account holder
     email = db.Column(db.String(100), unique=True, nullable=False)  # Account holder's email
     balance = db.Column(db.Float, default=0.0)  # Initial account balance
@@ -36,22 +36,39 @@ def home():
 def create_db():
     with app.app_context():
         try:
-            db.create_all()  # Create the tables
+            db.create_all()  
             return 'Database created successfully'
         except Exception as e:
             return f'Failed to create database: {e}'
 
-# Adding test data (sample accounts to test the database)
 @app.route('/add-sample-data')
 def add_sample_data():
-    with app.app_context():
-        try:
-            account = Account(name='Sibongiseni', email='sibongiseni@gmail.com', balance=1000.00)
-            db.session.add(account)
-            db.session.commit()  # Save the account to the database
-            return 'Sample account added successfully'
-        except Exception as e:
-            return f'Error adding sample data: {e}'
+    # Check and delete existing account if found
+    existing_account = Account.query.filter_by(email='sibongiseni@gmail.com').first()
+    if existing_account:
+        db.session.delete(existing_account)
+        db.session.commit()  
+
+    # Add the new account
+    account = Account(name='Sibongiseni', email='sibongiseni@gmail.com', balance=1000.00)
+    db.session.add(account)
+    db.session.commit()  
+    return 'Sample account added successfully'
+
+@app.route('/view-accounts')
+def view_accounts():
+    accounts = Account.query.all() 
+    account_list = []
+    for account in accounts:
+        account_list.append({
+            'id': account.id,
+            'name': account.name,
+            'email': account.email,
+            'balance': account.balance
+        })
+    return {'accounts': account_list}  
+
+
 
 # Start server
 if __name__ == '__main__':
