@@ -167,6 +167,7 @@ def withdraw():
     account_id = data.get('account_id')
     amount = data.get('amount')
 
+#check if account_id or amount is not empty
     if not account_id or not amount:
         return {'error': 'Account ID and amount are required'}, 400
 
